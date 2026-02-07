@@ -1,11 +1,17 @@
 package org.signal.camera
 
+import android.Manifest
+import android.app.Activity
 import android.content.Context
+import android.content.pm.PackageManager
+import android.content.ContextWrapper
 import android.graphics.Bitmap
 import android.graphics.Matrix
 import android.os.Build
 import android.os.VibrationEffect
 import android.os.Vibrator
+import android.view.Window
+import android.view.WindowManager
 import androidx.camera.core.AspectRatio
 import androidx.camera.core.Camera
 import androidx.camera.core.CameraSelector
@@ -46,6 +52,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.signal.core.util.logging.Log
 import org.signal.core.util.throttleLatest
+import java.lang.ref.WeakReference
 import java.util.EnumMap
 import java.util.concurrent.Executors
 import kotlin.time.Duration.Companion.seconds
@@ -67,6 +74,8 @@ class CameraScreenViewModel : ViewModel() {
   private var imageCapture: ImageCapture? = null
   private var videoCapture: VideoCapture<Recorder>? = null
   private var recording: Recording? = null
+  private var brightnessBeforeFlash: Float = WindowManager.LayoutParams.BRIGHTNESS_OVERRIDE_NONE
+  private var brightnessWindow: WeakReference<Window>? = null
 
   private val _qrCodeDetected = MutableSharedFlow<String>(extraBufferCapacity = 1)
   
@@ -145,8 +154,9 @@ class CameraScreenViewModel : ViewModel() {
     state: CameraScreenState,
     onPhotoCaptured: (Bitmap) -> Unit
   ) {
-    // Show selfie flash
+    // Show selfie flash and maximize screen brightness
     _state.value = state.copy(showSelfieFlash = true)
+    setMaxScreenBrightness(context)
 
     // Wait for screen to brighten, then capture
     viewModelScope.launch {
@@ -199,11 +209,13 @@ class CameraScreenViewModel : ViewModel() {
   private fun hideSelfieFlash() {
     if (_state.value.showSelfieFlash) {
       _state.value = _state.value.copy(showSelfieFlash = false)
+      restoreScreenBrightness()
     }
   }
 
   /**
    * Start video recording.
+   * If flash is enabled, turns on the torch for the duration of the recording.
    */
   @androidx.annotation.OptIn(markerClass = [androidx.camera.core.ExperimentalGetImage::class])
   @android.annotation.SuppressLint("MissingPermission", "RestrictedApi", "NewApi")
@@ -213,6 +225,16 @@ class CameraScreenViewModel : ViewModel() {
     onVideoCaptured: (VideoCaptureResult) -> Unit
   ) {
     val capture = videoCapture ?: return
+
+    val enableTorch = _state.value.flashMode == FlashMode.On &&
+      _state.value.lensFacing == CameraSelector.LENS_FACING_BACK
+
+    if (enableTorch) {
+      camera?.cameraControl?.enableTorch(true)
+    }
+
+    camera?.cameraControl?.setZoomRatio(1f)
+    _state.value = _state.value.copy(zoomRatio = 1f)
 
     // Prepare recording based on configuration
     val pendingRecording = when (output) {
@@ -228,8 +250,16 @@ class CameraScreenViewModel : ViewModel() {
       }
     }
 
-    val activeRecording = pendingRecording
-      .withAudioEnabled()
+    val hasAudioPermission = context.checkSelfPermission(Manifest.permission.RECORD_AUDIO) == PackageManager.PERMISSION_GRANTED
+
+    val configuredRecording = if (hasAudioPermission) {
+      pendingRecording.withAudioEnabled()
+    } else {
+      Log.w(TAG, "RECORD_AUDIO permission not granted, recording without audio")
+      pendingRecording
+    }
+
+    val activeRecording = configuredRecording
       .start(ContextCompat.getMainExecutor(context)) { recordEvent ->
         when (recordEvent) {
           is VideoRecordEvent.Start -> {
@@ -238,6 +268,10 @@ class CameraScreenViewModel : ViewModel() {
             vibrate(context)
           }
           is VideoRecordEvent.Finalize -> {
+            if (enableTorch) {
+              camera?.cameraControl?.enableTorch(false)
+            }
+
             val result = if (!recordEvent.hasError()) {
               Log.d(TAG, "Video recording succeeded")
               when (output) {
@@ -275,6 +309,7 @@ class CameraScreenViewModel : ViewModel() {
    * Stop video recording.
    */
   fun stopRecording() {
+    camera?.cameraControl?.enableTorch(false)
     recording?.stop()
     recording = null
   }
@@ -360,14 +395,14 @@ class CameraScreenViewModel : ViewModel() {
   ) {
     val currentCamera = camera ?: return
 
-    val factory = SurfaceOrientedMeteringPointFactory(event.width, event.height)
-    val point = factory.createPoint(event.x, event.y)
+    val factory = SurfaceOrientedMeteringPointFactory(event.surfaceWidth, event.surfaceHeight)
+    val point = factory.createPoint(event.surfaceX, event.surfaceY)
     val action = FocusMeteringAction.Builder(point).build()
 
     currentCamera.cameraControl.startFocusAndMetering(action)
 
     _state.value = state.copy(
-      focusPoint = Offset(event.x, event.y),
+      focusPoint = Offset(event.viewX, event.viewY),
       showFocusIndicator = true
     )
 
@@ -398,7 +433,15 @@ class CameraScreenViewModel : ViewModel() {
     _state.value = state.copy(zoomRatio = newZoom)
   }
 
+  fun setLensFacing(lensFacing: Int) {
+    _state.value = _state.value.copy(lensFacing = lensFacing)
+  }
+
   private fun handleSwitchCameraEvent(state: CameraScreenState) {
+    if (state.isRecording) {
+      return
+    }
+
     // Toggle between front and back camera
     val newLensFacing = if (state.lensFacing == CameraSelector.LENS_FACING_BACK) {
       CameraSelector.LENS_FACING_FRONT
@@ -427,13 +470,13 @@ class CameraScreenViewModel : ViewModel() {
     // Clamp linear zoom to valid range
     val clampedLinearZoom = linearZoom.coerceIn(0f, 1f)
 
-    // CameraX setLinearZoom takes 0.0-1.0 and maps to min-max zoom ratio
-    currentCamera.cameraControl.setLinearZoom(clampedLinearZoom)
-
-    // Calculate the actual zoom ratio for state tracking
-    val minZoom = currentCamera.cameraInfo.zoomState.value?.minZoomRatio ?: 1f
+    // Map 0.0-1.0 to the range from 1x to maxZoomRatio.
+    // We use 1x as the base instead of minZoomRatio because minZoomRatio may be less than 1x on devices with an ultrawide lens (e.g. 0.5x).
+    val baseZoom = 1f
     val maxZoom = currentCamera.cameraInfo.zoomState.value?.maxZoomRatio ?: 1f
-    val newZoomRatio = minZoom + (maxZoom - minZoom) * clampedLinearZoom
+    val newZoomRatio = baseZoom + (maxZoom - baseZoom) * clampedLinearZoom
+
+    currentCamera.cameraControl.setZoomRatio(newZoomRatio)
 
     _state.value = state.copy(zoomRatio = newZoomRatio)
   }
@@ -560,6 +603,33 @@ class CameraScreenViewModel : ViewModel() {
       Log.e(TAG, "Error processing image for QR code: ${e.message}", e)
     }
     imageProxy.close()
+  }
+
+  private fun setMaxScreenBrightness(context: Context) {
+    val window = context.findActivity()?.window ?: return
+
+    brightnessBeforeFlash = window.attributes.screenBrightness
+    brightnessWindow = WeakReference(window)
+    window.attributes = window.attributes.apply {
+      screenBrightness = WindowManager.LayoutParams.BRIGHTNESS_OVERRIDE_FULL
+    }
+  }
+
+  private fun restoreScreenBrightness() {
+    val window = brightnessWindow?.get() ?: return
+    window.attributes = window.attributes.apply {
+      screenBrightness = brightnessBeforeFlash
+    }
+    brightnessWindow = null
+  }
+
+  private fun Context.findActivity(): Activity? {
+    var context = this
+    while (context is ContextWrapper) {
+      if (context is Activity) return context
+      context = context.baseContext
+    }
+    return null
   }
 
   private fun vibrate(context: Context) {

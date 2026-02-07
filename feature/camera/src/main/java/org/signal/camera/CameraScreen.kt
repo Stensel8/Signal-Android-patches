@@ -4,6 +4,7 @@ import android.content.res.Configuration
 import androidx.camera.compose.CameraXViewfinder
 import androidx.camera.core.SurfaceRequest
 import androidx.camera.lifecycle.ProcessCameraProvider
+import androidx.camera.viewfinder.compose.MutableCoordinateTransformer
 import androidx.camera.core.Preview as CameraPreview
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.Animatable
@@ -132,22 +133,34 @@ fun CameraScreen(
             }
         )
       } else if (surfaceRequest != null) {
+        val coordinateTransformer = remember { MutableCoordinateTransformer() }
+        val currentSurfaceRequest = surfaceRequest!!
+
         CameraXViewfinder(
-          surfaceRequest = surfaceRequest!!,
+          surfaceRequest = currentSurfaceRequest,
+          coordinateTransformer = coordinateTransformer,
           modifier = Modifier
             .fillMaxSize()
             .clip(cornerShape)
             .pointerInput(Unit) {
-              detectTapGestures { offset ->
-                emitter(
-                  CameraScreenEvents.TapToFocus(
-                    x = offset.x,
-                    y = offset.y,
-                    width = size.width.toFloat(),
-                    height = size.height.toFloat()
+              detectTapGestures(
+                onDoubleTap = {
+                  emitter(CameraScreenEvents.SwitchCamera(context))
+                },
+                onTap = { offset ->
+                  val surfaceCoords = with(coordinateTransformer) { offset.transform() }
+                  emitter(
+                    CameraScreenEvents.TapToFocus(
+                      viewX = offset.x,
+                      viewY = offset.y,
+                      surfaceX = surfaceCoords.x,
+                      surfaceY = surfaceCoords.y,
+                      surfaceWidth = currentSurfaceRequest.resolution.width.toFloat(),
+                      surfaceHeight = currentSurfaceRequest.resolution.height.toFloat()
+                    )
                   )
-                )
-              }
+                }
+              )
             }
             .pointerInput(Unit) {
               detectTransformGestures { _, _, zoom, _ ->
