@@ -305,11 +305,13 @@ object RemoteConfig {
         val newKey = key.removePrefix("android.libsignal.")
         when (value) {
           is String -> newKey to value
+
           // The server is currently synthesizing "true" / "false" values
           // for RemoteConfigs that are otherwise empty string values.
           // Libsignal expects that disabled values are simply absent from the
           // map, so we map true to "true" and otherwise omit disabled values.
           is Boolean -> if (value) newKey to "true" else null
+
           else -> {
             val type = value?.let { value::class.simpleName }
             Log.w(TAG, "[libsignal] Unexpected type for $newKey! Was a $type")
@@ -559,6 +561,15 @@ object RemoteConfig {
   private val groupHardLimit: Int by remoteInt(
     key = "global.groupsv2.groupSizeHardLimit",
     defaultValue = 1001,
+    hotSwappable = true
+  )
+
+  /** The maximum number of pinned conversations a user can have. */
+  @JvmStatic
+  @get:JvmName("pinnedChatLimit")
+  val pinnedChatLimit: Int by remoteInt(
+    key = "global.pinnedChatLimit",
+    defaultValue = 4,
     hotSwappable = true
   )
 
@@ -1233,6 +1244,15 @@ object RemoteConfig {
   @get:JvmName("unifiedLocalBackups")
   val unifiedLocalBackups: Boolean by remoteBoolean(
     key = "android.unifiedLocalBackups",
+    defaultValue = false,
+    hotSwappable = true
+  )
+
+  /**
+   * Whether to receive and display group member labels.
+   */
+  val receiveMemberLabels: Boolean by remoteBoolean(
+    key = "android.receiveMemberLabels.2",
     defaultValue = false,
     hotSwappable = true
   )

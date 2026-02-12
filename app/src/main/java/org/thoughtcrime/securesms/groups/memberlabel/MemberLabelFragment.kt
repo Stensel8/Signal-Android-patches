@@ -38,12 +38,12 @@ import androidx.navigation.fragment.navArgs
 import org.signal.core.ui.compose.AllDevicePreviews
 import org.signal.core.ui.compose.Buttons
 import org.signal.core.ui.compose.ClearableTextField
+import org.signal.core.ui.compose.ComposeFragment
 import org.signal.core.ui.compose.Previews
 import org.signal.core.ui.compose.Scaffolds
 import org.signal.core.ui.compose.SignalIcons
 import org.signal.core.util.isNotNullOrBlank
 import org.thoughtcrime.securesms.R
-import org.thoughtcrime.securesms.compose.ComposeFragment
 import org.thoughtcrime.securesms.groups.GroupId
 import org.thoughtcrime.securesms.groups.memberlabel.MemberLabelUiState.SaveState
 import org.thoughtcrime.securesms.reactions.any.ReactWithAnyEmojiBottomSheetDialogFragment
@@ -131,6 +131,13 @@ private fun MemberLabelScreenUi(
         .padding(paddingValues)
         .fillMaxSize()
     ) {
+      Text(
+        text = stringResource(R.string.GroupMemberLabel__description),
+        style = MaterialTheme.typography.bodyMedium,
+        color = MaterialTheme.colorScheme.onSurfaceVariant,
+        modifier = Modifier.padding(start = 24.dp, end = 24.dp, top = 8.dp, bottom = 24.dp)
+      )
+
       LabelTextField(
         labelEmoji = state.labelEmoji,
         labelText = state.labelText,
@@ -140,7 +147,7 @@ private fun MemberLabelScreenUi(
         onClear = callbacks::onClearLabelClicked,
         onSave = callbacks::onSaveClicked,
         modifier = Modifier
-          .padding(start = 24.dp, end = 24.dp, top = 8.dp, bottom = 40.dp)
+          .padding(horizontal = 24.dp)
           .focusRequester(focusRequester)
       )
 
@@ -187,7 +194,8 @@ private fun LabelTextField(
       imeAction = ImeAction.Done
     ),
     keyboardActions = KeyboardActions(onDone = { onSave() }),
-    charactersRemaining = remainingCharacters,
+    hasClearableContent = { labelText.isNotEmpty() || !labelEmoji.isNullOrEmpty() },
+    charactersRemainingBeforeLimit = remainingCharacters,
     countdownConfig = ClearableTextField.CountdownConfig(displayThreshold = 9, warnThreshold = 5),
     colors = TextFieldDefaults.colors(
       unfocusedContainerColor = MaterialTheme.colorScheme.surfaceVariant,

@@ -7,6 +7,7 @@ package org.signal.registration
 
 import android.app.Application
 import androidx.compose.ui.test.assertIsDisplayed
+import androidx.test.core.app.ApplicationProvider
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
@@ -20,6 +21,7 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
+import org.signal.core.ui.CoreUiDependenciesRule
 import org.signal.core.ui.compose.theme.SignalTheme
 import org.signal.registration.screens.util.MockMultiplePermissionsState
 import org.signal.registration.screens.util.MockPermissionsState
@@ -36,6 +38,9 @@ class RegistrationNavigationTest {
 
   @get:Rule
   val composeTestRule = createComposeRule()
+
+  @get:Rule
+  val coreUiDependenciesRule = CoreUiDependenciesRule(ApplicationProvider.getApplicationContext())
 
   private lateinit var viewModel: RegistrationViewModel
   private lateinit var mockRepository: RegistrationRepository

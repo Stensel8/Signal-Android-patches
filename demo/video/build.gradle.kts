@@ -14,7 +14,7 @@ android {
 
   defaultConfig {
     applicationId = "org.thoughtcrime.video.app"
-    minSdk = 23
+    minSdk = 26
     targetSdk = libs.versions.targetSdk.get().toInt()
     versionCode = 1
     versionName = "1.0"
@@ -52,15 +52,15 @@ android {
 }
 
 dependencies {
-  implementation(libs.androidx.fragment.ktx)
   implementation(libs.androidx.activity.compose)
   implementation(platform(libs.androidx.compose.bom))
   implementation(libs.androidx.compose.material3)
-  implementation(libs.bundles.media3)
+  implementation(libs.androidx.navigation3.runtime)
+  implementation(libs.androidx.navigation3.ui)
+  implementation(libs.androidx.lifecycle.viewmodel.compose)
   implementation(project(":lib:video"))
   implementation(project(":core:util"))
-  implementation("androidx.work:work-runtime-ktx:2.9.1")
-  implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.8.4")
+  implementation(project(":core:ui"))
   implementation(libs.androidx.compose.ui.tooling.core)
   implementation(libs.androidx.compose.ui.test.manifest)
   androidTestImplementation(testLibs.junit.junit)

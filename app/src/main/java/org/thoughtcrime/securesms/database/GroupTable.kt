@@ -1278,11 +1278,28 @@ class GroupTable(context: Context?, databaseHelper: SignalDatabase?) :
      * Gets the member label for a specific member in the group, or null if the member is not found.
      */
     fun memberLabel(aci: ACI): MemberLabel? {
-      return decryptedGroup
+      val member = decryptedGroup
         .members
         .findMemberByAci(aci)
         .orNull()
-        ?.let { member -> MemberLabel(member.labelEmoji, member.labelString) }
+
+      return if (member != null && member.labelString.isNotBlank()) {
+        MemberLabel(member.labelEmoji, member.labelString)
+      } else {
+        null
+      }
+    }
+
+    /**
+     * Gets all member labels in the group. Only includes members that have a non-blank label.
+     */
+    fun memberLabelsByAci(): Map<ACI, MemberLabel> = buildMap {
+      decryptedGroup.members.forEach { member ->
+        if (member.labelString.isNotBlank()) {
+          val aci = ACI.parseOrNull(member.aciBytes) ?: return@forEach
+          put(aci, MemberLabel(member.labelEmoji, member.labelString))
+        }
+      }
     }
   }
 
