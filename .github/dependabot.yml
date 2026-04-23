@@ -1,11 +1,12 @@
 version: 2
 updates:
-  # GitHub Actions — pin to SHA, update weekly
+  # GitHub Actions — pin to SHA, update daily at 12:30 CEST (10:30 UTC)
   - package-ecosystem: "github-actions"
     directory: "/"
     schedule:
-      interval: "weekly"
-      day: "monday"
+      interval: "daily"
+      time: "10:30"
+      timezone: "Europe/Amsterdam"
     labels:
       - "chore(deps)"
       - "ci"
@@ -21,8 +22,9 @@ updates:
   - package-ecosystem: "gradle"
     directory: "/"
     schedule:
-      interval: "weekly"
-      day: "monday"
+      interval: "daily"
+      time: "10:30"
+      timezone: "Europe/Amsterdam"
     labels:
       - "chore(deps)"
       - "dependencies"

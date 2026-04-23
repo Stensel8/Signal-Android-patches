@@ -7,6 +7,8 @@
   "prConcurrentLimit": 20,
   "dependencyDashboard": true,
   "commitMessagePrefix": "chore(deps):",
+  "schedule": ["every day at 12:30"],
+  "timezone": "Europe/Amsterdam",
   "packageRules": [
     {
       "matchManagers": ["gradle", "gradle-wrapper", "gradle-version-catalog"],
