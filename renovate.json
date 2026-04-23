@@ -3,11 +3,18 @@
   "extends": ["config:base"],
   "forkProcessing": "enabled",
   "labels": ["dependencies"],
-  "prCreation": "immediate",
+  "prHourlyLimit": 0,
+  "prConcurrentLimit": 15,
+  "dependencyDashboard": true,
   "packageRules": [
     {
       "matchManagers": ["gradle", "gradle-wrapper"],
       "groupName": "Gradle dependencies"
+    },
+    {
+      "matchUpdateTypes": ["major"],
+      "groupName": "Major Gradle upgrades",
+      "labels": ["dependencies", "breaking-change"]
     }
   ]
 }
