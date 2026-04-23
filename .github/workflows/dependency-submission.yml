@@ -42,12 +42,13 @@ jobs:
           # ForceDependencyResolutionPlugin task, which requires a 'clean' task
           # that is missing from the :core subproject.
           dependency-resolution-task: :app:ForceDependencyResolutionPlugin_resolveProjectDependencies
-          build-scan-publish: false
-          # Pass Gradle properties via dependency-resolution-additional-arguments,
-          # NOT via GRADLE_OPTS (which is JVM-only and rejects -P flags).
-          dependency-resolution-additional-arguments: >-
+          # 'additional-arguments' is the correct param name (not dependency-resolution-additional-arguments)
+          additional-arguments: >-
             -Pkotlin.incremental=false
             -Dorg.gradle.workers.max=2
+          # Still submit the graph even if the Gradle build itself fails
+          dependency-graph-continue-on-failure: true
+          build-scan-publish: false
         env:
           # GRADLE_OPTS must contain JVM flags only (-X, -D), never -P flags.
           GRADLE_OPTS: >-
