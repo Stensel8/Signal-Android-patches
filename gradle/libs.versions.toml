@@ -11,7 +11,7 @@ ndk = "28.0.13004108"
 javaVersion = "17"
 kotlinJvmTarget = "17"
 gradle = "8.13.2"
-kotlin = "2.2.20"
+kotlin = "2.3.21"
 android-gradle-plugin = "8.13.2"
 
 # Other versions
