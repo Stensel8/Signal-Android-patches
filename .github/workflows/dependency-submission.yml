@@ -38,15 +38,18 @@ jobs:
       - name: Submit dependency graph
         uses: gradle/actions/dependency-submission@50e97c2cd7a37755bbfafc9c5b7cafaece252f6e # v6.1.0
         with:
-          # Use Signal's own dependency-resolution task instead of the default
+          # Use Signal's per-project resolution task instead of the root-level
           # ForceDependencyResolutionPlugin task, which requires a 'clean' task
           # that is missing from the :core subproject.
-          dependency-resolution-task: >-
-            :app:ForceDependencyResolutionPlugin_resolveProjectDependencies
+          dependency-resolution-task: :app:ForceDependencyResolutionPlugin_resolveProjectDependencies
           build-scan-publish: false
+          # Pass Gradle properties via dependency-resolution-additional-arguments,
+          # NOT via GRADLE_OPTS (which is JVM-only and rejects -P flags).
+          dependency-resolution-additional-arguments: >-
+            -Pkotlin.incremental=false
+            -Dorg.gradle.workers.max=2
         env:
+          # GRADLE_OPTS must contain JVM flags only (-X, -D), never -P flags.
           GRADLE_OPTS: >-
             -Dorg.gradle.jvmargs=-Xmx4g
             -XX:MaxMetaspaceSize=512m
-            -Dorg.gradle.workers.max=2
-            -Pkotlin.incremental=false
