@@ -8,7 +8,7 @@
   "branchConcurrentLimit": 0,
   "dependencyDashboard": true,
   "commitMessagePrefix": "chore(deps):",
-  "schedule": ["30 10 * * *"],
+  "schedule": ["every day at 10:00"],
   "timezone": "Europe/Amsterdam",
   "packageRules": [
     {
@@ -29,22 +29,22 @@
       "pinDigests": true
     },
     {
-      "matchPackagePrefixes": ["androidx.", "com.google.accompanist"],
+      "matchPackageNames": ["androidx.{/,}**", "com.google.accompanist{/,}**"],
       "groupName": "AndroidX & Accompanist",
       "labels": ["chore(deps)", "dependencies"]
     },
     {
-      "matchPackagePrefixes": ["org.jetbrains.kotlin", "org.jetbrains.kotlinx"],
+      "matchPackageNames": ["org.jetbrains.kotlin{/,}**", "org.jetbrains.kotlinx{/,}**"],
       "groupName": "Kotlin & Coroutines",
       "labels": ["chore(deps)", "dependencies"]
     },
     {
-      "matchPackagePrefixes": ["androidx.compose"],
+      "matchPackageNames": ["androidx.compose{/,}**"],
       "groupName": "Jetpack Compose",
       "labels": ["chore(deps)", "dependencies"]
     },
     {
-      "matchPackagePrefixes": ["com.google.", "com.googlecode."],
+      "matchPackageNames": ["com.google.{/,}**", "com.googlecode.{/,}**"],
       "groupName": "Google libraries",
       "labels": ["chore(deps)", "dependencies"]
     }
