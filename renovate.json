@@ -1,0 +1,13 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": ["config:base"],
+  "forkProcessing": "enabled",
+  "labels": ["dependencies"],
+  "prCreation": "immediate",
+  "packageRules": [
+    {
+      "matchManagers": ["gradle", "gradle-wrapper"],
+      "groupName": "Gradle dependencies"
+    }
+  ]
+}
