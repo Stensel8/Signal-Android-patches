@@ -2,19 +2,48 @@
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
   "extends": ["config:base"],
   "forkProcessing": "enabled",
-  "labels": ["dependencies"],
+  "labels": ["chore(deps)", "dependencies"],
   "prHourlyLimit": 0,
-  "prConcurrentLimit": 15,
+  "prConcurrentLimit": 20,
   "dependencyDashboard": true,
+  "commitMessagePrefix": "chore(deps):",
   "packageRules": [
     {
-      "matchManagers": ["gradle", "gradle-wrapper"],
-      "groupName": "Gradle dependencies"
+      "matchManagers": ["gradle", "gradle-wrapper", "gradle-version-catalog"],
+      "groupName": "Gradle dependencies",
+      "labels": ["chore(deps)", "dependencies"]
     },
     {
+      "matchManagers": ["gradle", "gradle-wrapper", "gradle-version-catalog"],
       "matchUpdateTypes": ["major"],
       "groupName": "Major Gradle upgrades",
-      "labels": ["dependencies", "breaking-change"]
+      "labels": ["chore(deps)", "dependencies", "breaking-change"]
+    },
+    {
+      "matchManagers": ["github-actions"],
+      "groupName": "GitHub Actions",
+      "labels": ["chore(deps)", "ci"],
+      "pinDigests": true
+    },
+    {
+      "matchPackagePrefixes": ["androidx.", "com.google.accompanist"],
+      "groupName": "AndroidX & Accompanist",
+      "labels": ["chore(deps)", "dependencies"]
+    },
+    {
+      "matchPackagePrefixes": ["org.jetbrains.kotlin", "org.jetbrains.kotlinx"],
+      "groupName": "Kotlin & Coroutines",
+      "labels": ["chore(deps)", "dependencies"]
+    },
+    {
+      "matchPackagePrefixes": ["androidx.compose"],
+      "groupName": "Jetpack Compose",
+      "labels": ["chore(deps)", "dependencies"]
+    },
+    {
+      "matchPackagePrefixes": ["com.google.", "com.googlecode."],
+      "groupName": "Google libraries",
+      "labels": ["chore(deps)", "dependencies"]
     }
   ]
 }
