@@ -10,6 +10,7 @@
   "commitMessagePrefix": "chore(deps):",
   "schedule": ["after 10am and before 11am"],
   "timezone": "Europe/Amsterdam",
+  "ignoreDeps": ["int:CONTENT_PROXY_PORT"],
   "packageRules": [
     {
       "matchManagers": ["gradle", "gradle-wrapper", "gradle-version-catalog"],
