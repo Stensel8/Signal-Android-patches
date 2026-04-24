@@ -1,9 +1,8 @@
 name: Update Gradle Verification Metadata
 
 # Triggered when Renovate or Dependabot opens/updates a PR that touches dependency
-# definitions. Runs --write-verification-metadata to calculate sha256 checksums for
-# any new artifacts and commits them back to the PR branch so the subsequent build
-# workflows see a complete, verified metadata file.
+# definitions. Deletes and fully regenerates verification-metadata.xml from scratch
+# so stale checksums for old artifact versions are removed automatically.
 
 on:
   pull_request:
@@ -39,6 +38,9 @@ jobs:
 
       - name: Validate Gradle Wrapper
         uses: gradle/actions/wrapper-validation@50e97c2cd7a37755bbfafc9c5b7cafaece252f6e # v6.1.0
+
+      - name: Delete existing verification metadata
+        run: rm -f gradle/verification-metadata.xml
 
       - name: Resolve buildscript and plugin classpath
         run: |
