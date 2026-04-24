@@ -41,7 +41,7 @@ jobs:
           # Use Signal's per-project resolution task instead of the root-level
           # ForceDependencyResolutionPlugin task, which requires a 'clean' task
           # that is missing from the :core subproject.
-          dependency-resolution-task: :app:ForceDependencyResolutionPlugin_resolveProjectDependencies
+          dependency-resolution-task: :Signal-Android:ForceDependencyResolutionPlugin_resolveProjectDependencies
           # 'additional-arguments' is the correct param name (not dependency-resolution-additional-arguments)
           additional-arguments: >-
             -Pkotlin.incremental=false

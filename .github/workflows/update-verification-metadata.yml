@@ -51,7 +51,7 @@ jobs:
 
       - name: Resolve all app and test dependencies
         run: |
-          ./gradlew :app:ForceDependencyResolutionPlugin_resolveProjectDependencies \
+          ./gradlew :Signal-Android:ForceDependencyResolutionPlugin_resolveProjectDependencies \
             --write-verification-metadata sha256 \
             --dependency-verification=off \
             --no-daemon \
