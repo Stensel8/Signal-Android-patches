@@ -3,6 +3,8 @@
 import com.android.build.api.dsl.ManagedVirtualDevice
 import org.gradle.api.JavaVersion
 import org.gradle.kotlin.dsl.extra
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 val benchmarkLibs = the<org.gradle.accessors.dm.LibrariesForBenchmarkLibs>()
 
@@ -18,10 +20,6 @@ android {
     compileOptions {
         sourceCompatibility = JavaVersion.toVersion(libs.versions.javaVersion.get())
         targetCompatibility = JavaVersion.toVersion(libs.versions.javaVersion.get())
-    }
-
-    kotlinOptions {
-        jvmTarget = libs.versions.kotlinJvmTarget.get()
     }
 
     defaultConfig {
@@ -75,5 +73,11 @@ androidComponents {
         if (it.buildType != "benchmark") {
             it.enable = false
         }
+    }
+}
+
+tasks.withType<KotlinCompile>().configureEach {
+    compilerOptions {
+        jvmTarget = JvmTarget.fromTarget(libs.versions.kotlinJvmTarget.get())
     }
 }

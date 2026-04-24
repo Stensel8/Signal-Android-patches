@@ -4,6 +4,8 @@ import org.gradle.accessors.dm.LibrariesForLibs
 import org.gradle.accessors.dm.LibrariesForTestLibs
 import org.gradle.api.JavaVersion
 import org.gradle.kotlin.dsl.the
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 val libs = the<LibrariesForLibs>()
 val testLibs = the<LibrariesForTestLibs>()
@@ -32,11 +34,6 @@ android {
     isCoreLibraryDesugaringEnabled = true
     sourceCompatibility = JavaVersion.toVersion(libs.versions.javaVersion.get())
     targetCompatibility = JavaVersion.toVersion(libs.versions.javaVersion.get())
-  }
-
-  kotlinOptions {
-    jvmTarget = libs.versions.kotlinJvmTarget.get()
-    suppressWarnings = true
   }
 
   buildFeatures {
@@ -76,4 +73,11 @@ dependencies {
   testImplementation(testLibs.robolectric.robolectric)
   testImplementation(testLibs.androidx.test.core)
   testImplementation(testLibs.androidx.test.core.ktx)
+}
+
+tasks.withType<KotlinCompile>().configureEach {
+  compilerOptions {
+    jvmTarget = JvmTarget.fromTarget(libs.versions.kotlinJvmTarget.get())
+    suppressWarnings = true
+  }
 }

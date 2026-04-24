@@ -1,0 +1,56 @@
+name: Dependency Submission
+
+# Submits the dependency graph to GitHub so Dependabot can raise security alerts.
+# Uses Signal's own Gradle task structure to avoid conflicts with the custom
+# ForceDependencyResolutionPlugin in build-logic/plugins (which breaks the
+# default GitHub automatic dependency submission feature).
+#
+# Only runs on pushes to main — not on PRs, to avoid permission issues.
+on:
+  push:
+    branches: [ "main" ]
+
+permissions:
+  contents: write        # required to submit the dependency graph
+
+jobs:
+  dependency-submission:
+    name: Submit dependency graph
+    runs-on: ubuntu-latest
+    if: ${{ github.repository != 'signalapp/Signal-Android' }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          submodules: true
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@be666c2fcd27ec809703dec50e508c2fdc7f6654 # v5.2.0
+        with:
+          distribution: temurin
+          java-version: '17'
+          cache: gradle
+
+      - name: Validate Gradle Wrapper
+        uses: gradle/actions/wrapper-validation@50e97c2cd7a37755bbfafc9c5b7cafaece252f6e # v6.1.0
+
+      - name: Submit dependency graph
+        uses: gradle/actions/dependency-submission@50e97c2cd7a37755bbfafc9c5b7cafaece252f6e # v6.1.0
+        with:
+          # Use Signal's per-project resolution task instead of the root-level
+          # ForceDependencyResolutionPlugin task, which requires a 'clean' task
+          # that is missing from the :core subproject.
+          dependency-resolution-task: :app:ForceDependencyResolutionPlugin_resolveProjectDependencies
+          # 'additional-arguments' is the correct param name (not dependency-resolution-additional-arguments)
+          additional-arguments: >-
+            -Pkotlin.incremental=false
+            -Dorg.gradle.workers.max=2
+          # Still submit the graph even if the Gradle build itself fails
+          dependency-graph-continue-on-failure: true
+          build-scan-publish: false
+        env:
+          # GRADLE_OPTS must contain JVM flags only (-X, -D), never -P flags.
+          GRADLE_OPTS: >-
+            -Dorg.gradle.jvmargs=-Xmx4g
+            -XX:MaxMetaspaceSize=512m

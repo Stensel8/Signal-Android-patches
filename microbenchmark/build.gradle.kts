@@ -1,5 +1,8 @@
 @file:Suppress("UnstableApiUsage")
 
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+
 plugins {
   id("com.android.library")
   id("androidx.benchmark")
@@ -15,10 +18,6 @@ android {
     isCoreLibraryDesugaringEnabled = true
     sourceCompatibility = JavaVersion.toVersion(libs.versions.javaVersion.get())
     targetCompatibility = JavaVersion.toVersion(libs.versions.javaVersion.get())
-  }
-
-  kotlinOptions {
-    jvmTarget = libs.versions.kotlinJvmTarget.get()
   }
 
   defaultConfig {
@@ -58,4 +57,10 @@ dependencies {
   // Dependencies of modules being tested
   androidTestImplementation(project(":lib:libsignal-service"))
   androidTestImplementation(libs.libsignal.android)
+}
+
+tasks.withType<KotlinCompile>().configureEach {
+  compilerOptions {
+    jvmTarget = JvmTarget.fromTarget(libs.versions.kotlinJvmTarget.get())
+  }
 }

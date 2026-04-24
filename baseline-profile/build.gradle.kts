@@ -1,3 +1,6 @@
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+
 plugins {
   id("com.android.test")
   alias(libs.plugins.jetbrains.kotlin.android)
@@ -13,10 +16,6 @@ android {
   compileOptions {
     sourceCompatibility = JavaVersion.toVersion(libs.versions.javaVersion.get())
     targetCompatibility = JavaVersion.toVersion(libs.versions.javaVersion.get())
-  }
-
-  kotlinOptions {
-    jvmTarget = libs.versions.kotlinJvmTarget.get()
   }
 
   defaultConfig {
@@ -72,5 +71,11 @@ androidComponents {
     if (it.flavorName != "playProd" && it.buildType != "mocked") {
       it.enable = false
     }
+  }
+}
+
+tasks.withType<KotlinCompile>().configureEach {
+  compilerOptions {
+    jvmTarget = JvmTarget.fromTarget(libs.versions.kotlinJvmTarget.get())
   }
 }

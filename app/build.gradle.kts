@@ -2,6 +2,8 @@
 
 import com.android.build.api.dsl.ManagedVirtualDevice
 import org.gradle.api.tasks.testing.logging.TestExceptionFormat
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 import java.time.Instant
 import java.time.ZoneOffset
 import java.time.format.DateTimeFormatter
@@ -113,12 +115,6 @@ android {
   testBuildType = "instrumentation"
 
   android.bundle.language.enableSplit = false
-
-  kotlinOptions {
-    jvmTarget = libs.versions.kotlinJvmTarget.get()
-    freeCompilerArgs = listOf("-Xjvm-default=all")
-    suppressWarnings = true
-  }
 
   debugKeystorePropertiesProvider.orNull?.let { properties ->
     signingConfigs.getByName("debug").apply {
@@ -935,5 +931,13 @@ abstract class CopyBenchmarkBackupTask : DefaultTask() {
     val backupFile = inputFile.get().asFile
     logger.lifecycle("Using benchmark backup: ${backupFile.absolutePath} (${backupFile.length() / 1024}KB)")
     backupFile.copyTo(dest.resolve("backup.binproto"), overwrite = true)
+  }
+}
+
+tasks.withType<KotlinCompile>().configureEach {
+  compilerOptions {
+    jvmTarget = JvmTarget.fromTarget(libs.versions.kotlinJvmTarget.get())
+    freeCompilerArgs.addAll(listOf("-Xjvm-default=all"))
+    suppressWarnings = true
   }
 }

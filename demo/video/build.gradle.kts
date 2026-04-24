@@ -4,6 +4,8 @@
  */
 
 import java.util.Properties
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
   id("signal-sample-app")
@@ -49,9 +51,6 @@ android {
     sourceCompatibility = JavaVersion.toVersion(libs.versions.javaVersion.get())
     targetCompatibility = JavaVersion.toVersion(libs.versions.javaVersion.get())
   }
-  kotlinOptions {
-    jvmTarget = libs.versions.kotlinJvmTarget.get()
-  }
   buildFeatures {
     compose = true
   }
@@ -91,4 +90,10 @@ dependencies {
   androidTestImplementation(testLibs.androidx.test.runner)
   androidTestImplementation(testLibs.androidx.test.ext.junit.ktx)
   androidTestUtil(testLibs.androidx.test.orchestrator)
+}
+
+tasks.withType<KotlinCompile>().configureEach {
+  compilerOptions {
+    jvmTarget = JvmTarget.fromTarget(libs.versions.kotlinJvmTarget.get())
+  }
 }

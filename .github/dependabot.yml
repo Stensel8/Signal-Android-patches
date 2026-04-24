@@ -1,29 +1,42 @@
 version: 2
 updates:
-  # Dependabot will update both the SHA and the inline version comment (e.g. # v6)
-  # while leaving any extra documentation comments intact.
+  # GitHub Actions — pin to SHA, update daily at 12:30 CEST (10:30 UTC)
   - package-ecosystem: "github-actions"
     directory: "/"
     schedule:
-      interval: "weekly"
-      day: "monday"
+      interval: "daily"
+      time: "10:30"
+      timezone: "Europe/Amsterdam"
     labels:
-      - "dependencies"
+      - "chore(deps)"
+      - "ci"
     commit-message:
-      prefix: "ci"
+      prefix: "chore(deps)"
     groups:
       actions:
         patterns: ["actions/*"]
       gradle-actions:
         patterns: ["gradle/*"]
 
+  # Gradle (incl. gradle-wrapper & version-catalog TOML files)
   - package-ecosystem: "gradle"
     directory: "/"
     schedule:
-      interval: "weekly"
-      day: "monday"
+      interval: "daily"
+      time: "10:30"
+      timezone: "Europe/Amsterdam"
     labels:
+      - "chore(deps)"
       - "dependencies"
     commit-message:
       prefix: "chore(deps)"
-    open-pull-requests-limit: 10
+    open-pull-requests-limit: 20
+    groups:
+      androidx:
+        patterns: ["androidx.*", "com.google.accompanist*"]
+      kotlin:
+        patterns: ["org.jetbrains.kotlin*", "org.jetbrains.kotlinx*"]
+      compose:
+        patterns: ["androidx.compose*"]
+      google:
+        patterns: ["com.google.*", "com.googlecode.*"]
