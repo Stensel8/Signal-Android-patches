@@ -195,7 +195,7 @@ materialish-progress = "com.pnikosis:materialish-progress:1.7"
 subsampling-scale-image-view = "com.davemorrissey.labs:subsampling-scale-image-view-androidx:3.10.0"
 lottie = "com.airbnb.android:lottie:6.4.0"
 lottie-compose = "com.airbnb.android:lottie-compose:6.4.0"
-dnsjava = "dnsjava:dnsjava:2.1.9"
+dnsjava = "dnsjava:dnsjava:3.6.4"
 nanohttpd-webserver = { module = "org.nanohttpd:nanohttpd-webserver", version.ref = "nanohttpd" }
 nanohttpd-websocket = { module = "org.nanohttpd:nanohttpd-websocket", version.ref = "nanohttpd" }
 kotlinx-collections-immutable = "org.jetbrains.kotlinx:kotlinx-collections-immutable:0.3.5"
