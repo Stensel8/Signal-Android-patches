@@ -27,6 +27,10 @@ while true; do
   echo "  Repository cannot be empty."
 done
 
+# Strip full URL prefix if user pastes a GitHub URL
+REPO="${REPO#https://github.com/}"
+REPO="${REPO%/}"
+
 echo ""
 echo "Target: $REPO"
 read -rp "  Proceed? [y/N]: " CONFIRM
@@ -35,8 +39,8 @@ echo ""
 
 # ── Cancel in-progress and queued runs ───────────────────────────────────────
 echo "[1/3] Cancelling active runs..."
-ACTIVE=$(gh run list --repo "$REPO" --status in_progress --json databaseId --jq '.[].databaseId' 2>/dev/null)
-QUEUED=$(gh run list --repo "$REPO" --status queued     --json databaseId --jq '.[].databaseId' 2>/dev/null)
+ACTIVE=$(gh run list --repo "$REPO" --status in_progress --json databaseId --jq '.[].databaseId' 2>/dev/null || true)
+QUEUED=$(gh run list --repo "$REPO" --status queued     --json databaseId --jq '.[].databaseId' 2>/dev/null || true)
 ALL_ACTIVE=$(printf '%s\n%s' "$ACTIVE" "$QUEUED" | grep -v '^$' || true)
 
 if [ -z "$ALL_ACTIVE" ]; then
