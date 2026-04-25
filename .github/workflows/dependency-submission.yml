@@ -16,7 +16,7 @@ permissions:
 jobs:
   dependency-submission:
     name: Submit dependency graph
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
     if: ${{ github.repository != 'signalapp/Signal-Android' }}
 
     steps:
@@ -52,5 +52,5 @@ jobs:
         env:
           # GRADLE_OPTS must contain JVM flags only (-X, -D), never -P flags.
           GRADLE_OPTS: >-
-            -Dorg.gradle.jvmargs=-Xmx4g
-            -XX:MaxMetaspaceSize=512m
+            -Dorg.gradle.jvmargs=-Xmx16g
+            -XX:MaxMetaspaceSize=1g
