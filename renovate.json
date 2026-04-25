@@ -48,8 +48,8 @@
       "addLabels": ["breaking-change"]
     },
     {
-      "matchCategories": ["security"],
-      "labels": ["chore(deps)", "dependencies", "security"]
+      "isVulnerabilityAlert": true,
+      "addLabels": ["security"]
     }
   ]
 }
