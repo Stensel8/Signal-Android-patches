@@ -1,4 +1,4 @@
-FROM ubuntu:jammy-20230624@sha256:b060fffe8e1561c9c3e6dea6db487b900100fc26830b9ea2ec966c151ab4c020
+FROM ubuntu:26.04@sha256:5e275723f82c67e387ba9e3c24baa0abdcb268917f276a0561c97bef9450d0b4
 
 COPY docker/ docker/
 COPY docker/apt.conf docker/sources.list /etc/apt/
