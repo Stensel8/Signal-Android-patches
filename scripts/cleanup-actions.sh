@@ -8,7 +8,7 @@
 # Prerequisites:
 #   - GitHub CLI (gh) installed and authenticated
 
-set -euo pipefail
+set -eu
 
 if ! command -v gh &> /dev/null; then
   echo "ERROR: GitHub CLI (gh) not found. Install from https://cli.github.com"
@@ -41,7 +41,9 @@ echo ""
 echo "[1/3] Cancelling active runs..."
 ACTIVE=$(gh run list --repo "$REPO" --status in_progress --json databaseId --jq '.[].databaseId' 2>/dev/null || true)
 QUEUED=$(gh run list --repo "$REPO" --status queued     --json databaseId --jq '.[].databaseId' 2>/dev/null || true)
-ALL_ACTIVE=$(printf '%s\n%s' "$ACTIVE" "$QUEUED" | grep -v '^$' || true)
+ALL_ACTIVE=""
+[ -n "$ACTIVE" ] && ALL_ACTIVE="$ACTIVE"
+[ -n "$QUEUED" ] && ALL_ACTIVE="${ALL_ACTIVE:+${ALL_ACTIVE}$'\n'}${QUEUED}"
 
 if [ -z "$ALL_ACTIVE" ]; then
   echo "  No active runs."
