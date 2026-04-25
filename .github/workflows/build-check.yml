@@ -36,6 +36,7 @@ jobs:
           ./gradlew assembleDebug --stacktrace \
             --dependency-verification=off \
             -Dorg.gradle.jvmargs="-Xmx16g -XX:MaxMetaspaceSize=1g" \
+            -Dorg.gradle.workers.max=8 \
             -Pkotlin.incremental=false
 
       - name: Run unit tests
@@ -43,6 +44,7 @@ jobs:
           ./gradlew testDebugUnitTest --stacktrace \
             --dependency-verification=off \
             -Dorg.gradle.jvmargs="-Xmx16g -XX:MaxMetaspaceSize=1g" \
+            -Dorg.gradle.workers.max=8 \
             -Pkotlin.incremental=false
 
       - name: Upload test reports on failure

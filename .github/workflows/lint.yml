@@ -36,6 +36,7 @@ jobs:
           ./gradlew lintDebug --stacktrace \
             --dependency-verification=off \
             -Dorg.gradle.jvmargs="-Xmx16g -XX:MaxMetaspaceSize=1g" \
+            -Dorg.gradle.workers.max=8 \
             -Pkotlin.incremental=false
 
       - name: Upload lint reports

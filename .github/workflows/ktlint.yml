@@ -30,7 +30,8 @@ jobs:
         run: |
           ./gradlew ktlintCheck --stacktrace \
             --dependency-verification=off \
-            -Dorg.gradle.jvmargs="-Xmx16g -XX:MaxMetaspaceSize=1g"
+            -Dorg.gradle.jvmargs="-Xmx16g -XX:MaxMetaspaceSize=1g" \
+            -Dorg.gradle.workers.max=8
 
       - name: Upload ktlint reports
         if: ${{ failure() }}

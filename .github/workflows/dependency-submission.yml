@@ -46,7 +46,7 @@ jobs:
           # 'additional-arguments' is the correct param name (not dependency-resolution-additional-arguments)
           additional-arguments: >-
             -Pkotlin.incremental=false
-            -Dorg.gradle.workers.max=2
+            -Dorg.gradle.workers.max=8
           # Still submit the graph even if the Gradle build itself fails
           dependency-graph-continue-on-failure: true
           build-scan-publish: false
