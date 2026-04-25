@@ -1,3 +1,5 @@
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+
 plugins {
   `kotlin-dsl`
   alias(libs.plugins.ktlint)
@@ -10,10 +12,8 @@ java {
 }
 
 kotlin {
-  jvmToolchain {
-    languageVersion.set(JavaLanguageVersion.of(libs.versions.kotlinJvmTarget.get()))
-  }
   compilerOptions {
+    jvmTarget = JvmTarget.fromTarget(libs.versions.kotlinJvmTarget.get())
     suppressWarnings = true
   }
 }

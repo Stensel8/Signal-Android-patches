@@ -11,23 +11,16 @@
   "schedule": ["after 10am and before 11am"],
   "timezone": "Europe/Amsterdam",
   "ignoreDeps": ["int:CONTENT_PROXY_PORT"],
+  "suppressNotifications": ["artifactErrors"],
   "packageRules": [
+    {
+      "matchManagers": ["github-actions"],
+      "enabled": false
+    },
     {
       "matchManagers": ["gradle", "gradle-wrapper", "gradle-version-catalog"],
       "groupName": "Gradle dependencies",
       "labels": ["chore(deps)", "dependencies"]
-    },
-    {
-      "matchManagers": ["gradle", "gradle-wrapper", "gradle-version-catalog"],
-      "matchUpdateTypes": ["major"],
-      "groupName": "Major Gradle upgrades",
-      "labels": ["chore(deps)", "dependencies", "breaking-change"]
-    },
-    {
-      "matchManagers": ["github-actions"],
-      "groupName": "GitHub Actions",
-      "labels": ["chore(deps)", "ci"],
-      "pinDigests": true
     },
     {
       "matchPackageNames": ["androidx.**", "com.google.accompanist:**"],
@@ -48,6 +41,14 @@
       "matchPackageNames": ["com.google.**", "com.googlecode.**"],
       "groupName": "Google libraries",
       "labels": ["chore(deps)", "dependencies"]
+    },
+    {
+      "matchManagers": ["gradle", "gradle-wrapper", "gradle-version-catalog"],
+      "matchUpdateTypes": ["major"],
+      "addLabels": ["breaking-change"]
     }
-  ]
+  ],
+  "vulnerabilityAlerts": {
+    "addLabels": ["security"]
+  }
 }

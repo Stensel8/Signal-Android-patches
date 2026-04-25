@@ -12,7 +12,7 @@ jobs:
   ktlint:
     name: ktlint code style
     if: ${{ github.repository != 'signalapp/Signal-Android' }}
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
 
     steps:
       - name: Checkout
@@ -26,7 +26,10 @@ jobs:
           cache: gradle
 
       - name: Run ktlint
-        run: ./gradlew ktlintCheck --stacktrace
+        run: |
+          ./gradlew ktlintCheck --stacktrace \
+            --dependency-verification=off \
+            -Dorg.gradle.jvmargs="-Xmx16g -XX:MaxMetaspaceSize=1g"
 
       - name: Upload ktlint reports
         if: ${{ failure() }}
