@@ -13,6 +13,7 @@ jobs:
     name: lintDebug
     if: ${{ github.repository != 'signalapp/Signal-Android' }}
     runs-on: self-hosted
+    timeout-minutes: 90
 
     steps:
       - name: Checkout

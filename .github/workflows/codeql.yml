@@ -12,6 +12,7 @@ jobs:
   analyze:
     name: Analyze (${{ matrix.language }})
     runs-on: self-hosted
+    timeout-minutes: 120
     if: github.repository != 'signalapp/Signal-Android'
     permissions:
       security-events: write

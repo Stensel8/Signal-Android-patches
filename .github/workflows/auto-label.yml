@@ -17,6 +17,7 @@ jobs:
   label:
     name: Update safe-to-merge label
     runs-on: ubuntu-latest
+    timeout-minutes: 5
     if: github.repository != 'signalapp/Signal-Android'
 
     steps:

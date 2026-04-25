@@ -17,6 +17,7 @@ jobs:
   dependency-submission:
     name: Submit dependency graph
     runs-on: self-hosted
+    timeout-minutes: 60
     if: ${{ github.repository != 'signalapp/Signal-Android' }}
 
     steps:
