@@ -35,3 +35,4 @@ kls_database.db
 lefthook-local.yml
 sample-videos/
 /.claude
+gradle/verification-metadata.xml
