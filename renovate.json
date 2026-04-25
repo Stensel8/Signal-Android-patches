@@ -46,10 +46,9 @@
       "matchManagers": ["gradle", "gradle-wrapper", "gradle-version-catalog"],
       "matchUpdateTypes": ["major"],
       "addLabels": ["breaking-change"]
-    },
-    {
-      "isVulnerabilityAlert": true,
-      "addLabels": ["security"]
     }
-  ]
+  ],
+  "vulnerabilityAlerts": {
+    "addLabels": ["security"]
+  }
 }
