@@ -11,13 +11,18 @@ on:
 jobs:
   analyze:
     name: Analyze (${{ matrix.language }})
-    runs-on: ${{ (matrix.language == 'swift' && 'macos-latest') || 'ubuntu-latest' }}
+    runs-on: self-hosted
+    timeout-minutes: 120
     if: github.repository != 'signalapp/Signal-Android'
     permissions:
       security-events: write
       packages: read
       actions: read
       contents: read
+
+    env:
+      # Picked up by Gradle during autobuild — limits heap and parallel workers per runner
+      GRADLE_OPTS: "-Dorg.gradle.jvmargs=-Xmx16g -XX:MaxMetaspaceSize=1g -Dorg.gradle.workers.max=8"
 
     strategy:
       fail-fast: false
@@ -28,7 +33,7 @@ jobs:
           - language: c-cpp
             build-mode: none
           - language: java-kotlin
-            build-mode: manual
+            build-mode: autobuild
           - language: javascript-typescript
             build-mode: none
           - language: python
@@ -40,34 +45,12 @@ jobs:
         with:
           submodules: true
 
-      - name: Set up JDK 17
-        if: matrix.language == 'java-kotlin'
-        uses: actions/setup-java@be666c2fcd27ec809703dec50e508c2fdc7f6654 # v5.2.0
-        with:
-          distribution: temurin
-          java-version: '17'
-          cache: gradle
-
       - name: Initialize CodeQL
         uses: github/codeql-action/init@95e58e9a2cdfd71adc6e0353d5c52f41a045d225 # v4.35.2
         with:
           languages: ${{ matrix.language }}
           build-mode: ${{ matrix.build-mode }}
           queries: security-and-quality
-
-      - name: Build (Java/Kotlin)
-        if: matrix.language == 'java-kotlin'
-        shell: bash
-        run: |
-          chmod +x gradlew
-          ./gradlew assembleDebug \
-            --no-daemon \
-            --stacktrace \
-            -Dorg.gradle.jvmargs="-Xmx4g -XX:MaxMetaspaceSize=512m" \
-            -Dorg.gradle.workers.max=2 \
-            -Pkotlin.incremental=false \
-            -x lint \
-            -x test
 
       - name: Perform CodeQL Analysis
         uses: github/codeql-action/analyze@95e58e9a2cdfd71adc6e0353d5c52f41a045d225 # v4.35.2

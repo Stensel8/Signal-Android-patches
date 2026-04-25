@@ -1,6 +1,8 @@
 version: 2
 updates:
-  # GitHub Actions — pin to SHA, update daily at 12:30 CEST (10:30 UTC)
+  # GitHub Actions — pin workflow steps to SHA, update daily at 10:30 CEST (08:30 UTC).
+  # Renovate handles all Gradle/Maven/Docker dependencies.
+  # Dependabot handles only GitHub Actions workflow step SHA pinning.
   - package-ecosystem: "github-actions"
     directory: "/"
     schedule:
@@ -17,26 +19,3 @@ updates:
         patterns: ["actions/*"]
       gradle-actions:
         patterns: ["gradle/*"]
-
-  # Gradle (incl. gradle-wrapper & version-catalog TOML files)
-  - package-ecosystem: "gradle"
-    directory: "/"
-    schedule:
-      interval: "daily"
-      time: "10:30"
-      timezone: "Europe/Amsterdam"
-    labels:
-      - "chore(deps)"
-      - "dependencies"
-    commit-message:
-      prefix: "chore(deps)"
-    open-pull-requests-limit: 20
-    groups:
-      androidx:
-        patterns: ["androidx.*", "com.google.accompanist*"]
-      kotlin:
-        patterns: ["org.jetbrains.kotlin*", "org.jetbrains.kotlinx*"]
-      compose:
-        patterns: ["androidx.compose*"]
-      google:
-        patterns: ["com.google.*", "com.googlecode.*"]

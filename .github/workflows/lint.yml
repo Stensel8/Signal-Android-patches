@@ -12,7 +12,8 @@ jobs:
   lint:
     name: lintDebug
     if: ${{ github.repository != 'signalapp/Signal-Android' }}
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
+    timeout-minutes: 90
 
     steps:
       - name: Checkout
@@ -31,7 +32,12 @@ jobs:
         uses: gradle/actions/wrapper-validation@50e97c2cd7a37755bbfafc9c5b7cafaece252f6e # v6.1.0
 
       - name: Run Android Lint
-        run: ./gradlew lintDebug --stacktrace
+        run: |
+          ./gradlew lintDebug --stacktrace \
+            --dependency-verification=off \
+            -Dorg.gradle.jvmargs="-Xmx16g -XX:MaxMetaspaceSize=1g" \
+            -Dorg.gradle.workers.max=8 \
+            -Pkotlin.incremental=false
 
       - name: Upload lint reports
         if: ${{ always() }}
