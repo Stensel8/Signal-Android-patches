@@ -26,7 +26,10 @@ jobs:
           cache: gradle
 
       - name: Run ktlint
-        run: ./gradlew ktlintCheck --stacktrace
+        run: |
+          ./gradlew ktlintCheck --stacktrace \
+            --dependency-verification=off \
+            -Dorg.gradle.jvmargs="-Xmx4g -XX:MaxMetaspaceSize=512m"
 
       - name: Upload ktlint reports
         if: ${{ failure() }}
