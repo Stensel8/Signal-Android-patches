@@ -12,6 +12,10 @@
   "timezone": "Europe/Amsterdam",
   "ignoreDeps": ["int:CONTENT_PROXY_PORT"],
   "suppressNotifications": ["artifactErrors"],
+  "gradle": {
+    "fileMatch": ["(^|/)gradle/libs\\.versions\\.toml$", "(^|/)build\\.gradle(\\.kts)?$", "(^|/)settings\\.gradle(\\.kts)?$", "(^|/)gradle\\.properties$"]
+  },
+  "postUpdateOptions": [],
   "packageRules": [
     {
       "matchManagers": ["github-actions"],
