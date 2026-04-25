@@ -58,32 +58,32 @@ fi
 
 # ── Delete all runs ───────────────────────────────────────────────────────────
 echo "[2/3] Deleting all workflow runs..."
-PAGE=1
 DELETED=0
 while true; do
-  IDS=$(gh api "repos/$REPO/actions/runs?per_page=100&page=$PAGE" \
-    --jq '.workflow_runs[].id' 2>/dev/null || true)
+  IDS=$(gh run list --repo "$REPO" --limit 100 --json databaseId --jq '.[].databaseId' 2>/dev/null || true)
   [ -z "$IDS" ] && break
   while IFS= read -r id; do
-    gh api -X DELETE "repos/$REPO/actions/runs/$id" 2>/dev/null && DELETED=$((DELETED+1)) || true
+    gh api -X DELETE "repos/$REPO/actions/runs/$id" 2>/dev/null || true
+    DELETED=$((DELETED+1))
+    printf "\r  Deleted %d run(s)..." "$DELETED"
   done <<< "$IDS"
-  PAGE=$((PAGE+1))
 done
+echo ""
 echo "  Deleted $DELETED run(s)."
 
 # ── Delete all caches ─────────────────────────────────────────────────────────
 echo "[3/3] Deleting all caches..."
-PAGE=1
 CDELETED=0
 while true; do
-  IDS=$(gh api "repos/$REPO/actions/caches?per_page=100&page=$PAGE" \
-    --jq '.actions_caches[].id' 2>/dev/null || true)
+  IDS=$(gh cache list --repo "$REPO" --limit 100 --json id --jq '.[].id' 2>/dev/null || true)
   [ -z "$IDS" ] && break
   while IFS= read -r id; do
-    gh api -X DELETE "repos/$REPO/actions/caches/$id" 2>/dev/null && CDELETED=$((CDELETED+1)) || true
+    gh cache delete "$id" --repo "$REPO" 2>/dev/null || true
+    CDELETED=$((CDELETED+1))
+    printf "\r  Deleted %d cache(s)..." "$CDELETED"
   done <<< "$IDS"
-  PAGE=$((PAGE+1))
 done
+echo ""
 echo "  Deleted $CDELETED cache(s)."
 
 echo ""
