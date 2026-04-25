@@ -1,7 +1,7 @@
 import org.jetbrains.kotlin.gradle.plugin.mpp.pm20.util.archivesName
 
 plugins {
-  id("org.jetbrains.kotlin.jvm") version "1.9.20"
+  id("org.jetbrains.kotlin.jvm") version "2.3.21"
   `java-library`
 }
 
@@ -13,5 +13,5 @@ repositories {
 }
 
 dependencies {
-  implementation("com.squareup.wire:wire-schema:4.4.3")
+  implementation("com.squareup.wire:wire-schema:6.2.0")
 }
