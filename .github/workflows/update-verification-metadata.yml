@@ -1,15 +1,15 @@
 name: Update Gradle Verification Metadata
 
-# Triggered when Renovate or Dependabot opens/updates a PR that touches dependency
-# definitions. Deletes and fully regenerates verification-metadata.xml from scratch
-# so stale checksums for old artifact versions are removed automatically.
+# Triggered when Renovate opens/updates a PR that changes any dependency
+# (version catalog, wrapper, or direct build file changes). Deletes and fully
+# regenerates verification-metadata.xml so stale checksums are removed.
+#
+# Scope: Renovate only. Dependabot handles only GitHub Actions (no Gradle deps),
+# so it never needs metadata regeneration.
 
 on:
   pull_request:
     branches: [main]
-    paths:
-      - 'gradle/libs.versions.toml'
-      - 'gradle/wrapper/gradle-wrapper.properties'
 
 permissions:
   contents: write
@@ -20,7 +20,7 @@ jobs:
     runs-on: ubuntu-latest
     if: |
       github.repository != 'signalapp/Signal-Android' &&
-      (startsWith(github.head_ref, 'renovate/') || startsWith(github.head_ref, 'dependabot/'))
+      startsWith(github.head_ref, 'renovate/')
 
     steps:
       - name: Checkout PR branch
@@ -48,6 +48,7 @@ jobs:
             --write-verification-metadata sha256 \
             --dependency-verification=off \
             --no-daemon \
+            --no-configuration-cache \
             -Dorg.gradle.jvmargs="-Xmx4g -XX:MaxMetaspaceSize=512m" \
             -Pkotlin.incremental=false
 
@@ -57,6 +58,7 @@ jobs:
             --write-verification-metadata sha256 \
             --dependency-verification=off \
             --no-daemon \
+            --no-configuration-cache \
             -Dorg.gradle.jvmargs="-Xmx4g -XX:MaxMetaspaceSize=512m" \
             -Pkotlin.incremental=false
 

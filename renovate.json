@@ -13,7 +13,12 @@
   "ignoreDeps": ["int:CONTENT_PROXY_PORT"],
   "packageRules": [
     {
+      "matchManagers": ["github-actions"],
+      "enabled": false
+    },
+    {
       "matchManagers": ["gradle", "gradle-wrapper", "gradle-version-catalog"],
+      "matchUpdateTypes": ["minor", "patch", "pin", "digest"],
       "groupName": "Gradle dependencies",
       "labels": ["chore(deps)", "dependencies"]
     },
@@ -24,30 +29,52 @@
       "labels": ["chore(deps)", "dependencies", "breaking-change"]
     },
     {
-      "matchManagers": ["github-actions"],
-      "groupName": "GitHub Actions",
-      "labels": ["chore(deps)", "ci"],
-      "pinDigests": true
-    },
-    {
       "matchPackageNames": ["androidx.**", "com.google.accompanist:**"],
+      "matchUpdateTypes": ["minor", "patch", "pin", "digest"],
       "groupName": "AndroidX & Accompanist",
       "labels": ["chore(deps)", "dependencies"]
     },
     {
+      "matchPackageNames": ["androidx.**", "com.google.accompanist:**"],
+      "matchUpdateTypes": ["major"],
+      "groupName": "AndroidX & Accompanist (major)",
+      "labels": ["chore(deps)", "dependencies", "breaking-change"]
+    },
+    {
       "matchPackageNames": ["org.jetbrains.kotlin:**", "org.jetbrains.kotlinx:**"],
+      "matchUpdateTypes": ["minor", "patch", "pin", "digest"],
       "groupName": "Kotlin & Coroutines",
       "labels": ["chore(deps)", "dependencies"]
     },
     {
+      "matchPackageNames": ["org.jetbrains.kotlin:**", "org.jetbrains.kotlinx:**"],
+      "matchUpdateTypes": ["major"],
+      "groupName": "Kotlin & Coroutines (major)",
+      "labels": ["chore(deps)", "dependencies", "breaking-change"]
+    },
+    {
       "matchPackageNames": ["androidx.compose:**"],
+      "matchUpdateTypes": ["minor", "patch", "pin", "digest"],
       "groupName": "Jetpack Compose",
       "labels": ["chore(deps)", "dependencies"]
     },
     {
+      "matchPackageNames": ["androidx.compose:**"],
+      "matchUpdateTypes": ["major"],
+      "groupName": "Jetpack Compose (major)",
+      "labels": ["chore(deps)", "dependencies", "breaking-change"]
+    },
+    {
       "matchPackageNames": ["com.google.**", "com.googlecode.**"],
+      "matchUpdateTypes": ["minor", "patch", "pin", "digest"],
       "groupName": "Google libraries",
       "labels": ["chore(deps)", "dependencies"]
+    },
+    {
+      "matchPackageNames": ["com.google.**", "com.googlecode.**"],
+      "matchUpdateTypes": ["major"],
+      "groupName": "Google libraries (major)",
+      "labels": ["chore(deps)", "dependencies", "breaking-change"]
     }
   ]
 }

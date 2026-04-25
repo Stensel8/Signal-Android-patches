@@ -1,0 +1,88 @@
+name: Auto-label safe-to-merge
+
+# Watches Build Check, ktlint, and Android Lint. When ALL three pass for a PR,
+# adds the 'safe-to-merge' label. Removes it as soon as any one of them fails.
+# Only fires for PRs from same-repo branches (renovate/, dependabot/).
+
+on:
+  workflow_run:
+    workflows: ["Build Check", "ktlint", "Android Lint"]
+    types: [completed]
+
+permissions:
+  pull-requests: write
+  actions: read
+
+jobs:
+  label:
+    name: Update safe-to-merge label
+    runs-on: ubuntu-latest
+    if: github.repository != 'signalapp/Signal-Android'
+
+    steps:
+      - name: Add or remove safe-to-merge label
+        uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea # v7.0.1
+        with:
+          script: |
+            const run = context.payload.workflow_run;
+
+            // Only process PRs from same-repo branches (not forks)
+            if (!run.pull_requests || run.pull_requests.length === 0) return;
+
+            const pr = run.pull_requests[0];
+            const prNumber = pr.number;
+            const headSha = run.head_sha;
+            const safeLabel = 'safe-to-merge';
+            const requiredWorkflows = ['Build Check', 'ktlint', 'Android Lint'];
+
+            // Get latest run for each required workflow at this SHA
+            const { data: runs } = await github.rest.actions.listWorkflowRunsForRepo({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              head_sha: headSha,
+              per_page: 100
+            });
+
+            const latestByName = {};
+            for (const r of runs.workflow_runs) {
+              if (requiredWorkflows.includes(r.name) && !latestByName[r.name]) {
+                latestByName[r.name] = r.conclusion;
+              }
+            }
+
+            const allPassed = requiredWorkflows.every(w => latestByName[w] === 'success');
+            const anyFailed = requiredWorkflows.some(
+              w => ['failure', 'cancelled', 'timed_out'].includes(latestByName[w])
+            );
+
+            // Read current labels
+            const { data: labels } = await github.rest.issues.listLabelsOnIssue({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: prNumber
+            });
+            const hasLabel = labels.some(l => l.name === safeLabel);
+
+            if (allPassed && !hasLabel) {
+              core.info(`All checks passed for PR #${prNumber} — adding '${safeLabel}'`);
+              await github.rest.issues.addLabels({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: prNumber,
+                labels: [safeLabel]
+              });
+            } else if (anyFailed && hasLabel) {
+              core.info(`Check failed for PR #${prNumber} — removing '${safeLabel}'`);
+              try {
+                await github.rest.issues.removeLabel({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  issue_number: prNumber,
+                  name: safeLabel
+                });
+              } catch (_) {
+                // Label already gone, ignore
+              }
+            } else {
+              core.info(`PR #${prNumber}: no label change needed (allPassed=${allPassed}, anyFailed=${anyFailed}, hasLabel=${hasLabel})`);
+            }
