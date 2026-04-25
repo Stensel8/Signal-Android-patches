@@ -17,7 +17,7 @@ permissions:
 jobs:
   update-metadata:
     name: Regenerate verification-metadata.xml
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
     if: |
       github.repository != 'signalapp/Signal-Android' &&
       startsWith(github.head_ref, 'renovate/')
@@ -49,7 +49,7 @@ jobs:
             --dependency-verification=off \
             --no-daemon \
             --no-configuration-cache \
-            -Dorg.gradle.jvmargs="-Xmx4g -XX:MaxMetaspaceSize=512m" \
+            -Dorg.gradle.jvmargs="-Xmx16g -XX:MaxMetaspaceSize=1g" \
             -Pkotlin.incremental=false
 
       - name: Resolve all app and test dependencies
@@ -59,7 +59,7 @@ jobs:
             --dependency-verification=off \
             --no-daemon \
             --no-configuration-cache \
-            -Dorg.gradle.jvmargs="-Xmx4g -XX:MaxMetaspaceSize=512m" \
+            -Dorg.gradle.jvmargs="-Xmx16g -XX:MaxMetaspaceSize=1g" \
             -Pkotlin.incremental=false
 
       - name: Commit updated checksums

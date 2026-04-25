@@ -12,7 +12,7 @@ jobs:
   lint:
     name: lintDebug
     if: ${{ github.repository != 'signalapp/Signal-Android' }}
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
 
     steps:
       - name: Checkout
@@ -34,7 +34,7 @@ jobs:
         run: |
           ./gradlew lintDebug --stacktrace \
             --dependency-verification=off \
-            -Dorg.gradle.jvmargs="-Xmx4g -XX:MaxMetaspaceSize=512m" \
+            -Dorg.gradle.jvmargs="-Xmx16g -XX:MaxMetaspaceSize=1g" \
             -Pkotlin.incremental=false
 
       - name: Upload lint reports
